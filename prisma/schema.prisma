@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id    Bytes  @id @default(auto()) @map("_id") @db.ObjectId
+  email String @map("_email")
+  info  String
+  apps  app[]
+}
+
+type app {
+  name        String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+}
+
+model Images {
+  imageID         String   @id @default(auto()) @map("_id") @db.ObjectId
+  messageID       String?
+  userID          String?
+  guild           String?
+  channelID       String?
+  logID           String?
+  url             String
+  type            String
+  interactionType String?
+  isVideo         Boolean?
+  tags            String[]
+  likedBy         Users[]  @relation(fields: [likedByIds], references: [id])
+  likedByIds      String[] @db.ObjectId
+}
+
+model Users {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  premium        Boolean  @default(false)
+  tagsSuggested  Int      @default(0)
+  baraRequested  Int      @default(0)
+  isContribuitor Boolean  @default(false)
+  liked          Images[] @relation(fields: [likedImageIds], references: [imageID])
+  likedImageIds  String[] @db.ObjectId
+}
